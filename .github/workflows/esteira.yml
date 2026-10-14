@@ -29,7 +29,7 @@ jobs:
       - name: Testes de unidade e integração (cobertura + JUnit)
         run: npm run test:ci
       - name: Segredos (gitleaks)
-        uses: gitleaks/gitleaks-action@v2
+        uses: gitleaks/gitleaks-action@v3
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Dependências e SBOM
