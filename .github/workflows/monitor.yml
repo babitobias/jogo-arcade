@@ -42,6 +42,7 @@ jobs:
           git config user.name monitor && git config user.email monitor@users.noreply.github.com
           git add status && (git commit -qm "monitor: sonda $(date -u +%FT%TZ)" && git push -q) || true
       - name: Alertas (abrir e fechar Issues)
+        working-directory: codigo
         run: |
           alerta() {  # alerta <nome> <alvos> <detalhe>
             local nome=$1 alvos=$2 detalhe=$3
