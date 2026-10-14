@@ -51,7 +51,7 @@ jobs:
           sha256sum build.zip > build.zip.sha256
           cat build.zip.sha256
           test "$(stat -c%s build.zip)" -lt 26214400   # < 25 MB
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: build-${{ github.sha }}
@@ -168,7 +168,7 @@ jobs:
           npm ci && npx playwright install --with-deps chromium
           sudo apt-get install -y poppler-utils ffmpeg
           ./scripts/triagem.sh submissao
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: submissao-${{ github.sha }}
           path: submissao/
