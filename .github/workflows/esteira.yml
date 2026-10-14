@@ -43,6 +43,7 @@ jobs:
         run: |
           npx playwright install --with-deps chromium
           npm run gdd:pdf
+          sudo apt-get install -y poppler-utils
           pdfinfo docs/GDD.pdf
       - name: Pacote da release (build.zip + SHA-256)
         run: |
@@ -165,6 +166,7 @@ jobs:
           PRAZO: ${{ vars.PRAZO }}
         run: |
           npm ci && npx playwright install --with-deps chromium
+          sudo apt-get install -y poppler-utils ffmpeg
           ./scripts/triagem.sh submissao
       - uses: actions/upload-artifact@v4
         with:
