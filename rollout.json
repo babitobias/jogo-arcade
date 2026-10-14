@@ -1,6 +1,6 @@
 {
-  "estavel": "34eb2c5",
-  "anterior": null,
-  "canario": "2cf918a",
-  "percentual": 10
+  "estavel": "2cf918a",
+  "anterior": "34eb2c5",
+  "canario": null,
+  "percentual": 0
 }
