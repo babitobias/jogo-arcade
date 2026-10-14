@@ -83,7 +83,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: ./scripts/publicar.sh hml build.zip
       - name: Esperar propagação do Pages
-        run: ./scripts/aguardar.sh "${{ vars.SITE_URL }}/hml/version.json" 300
+        run: ./scripts/aguardar.sh "${{ vars.SITE_URL }}/hml/version.json" 600
       - name: Regressão E2E em homologação
         env:
           BASE_URL: ${{ vars.SITE_URL }}/hml/
@@ -95,7 +95,7 @@ jobs:
   deploy-prd:
     needs: deploy-hml
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 45
     permissions:
       contents: write
       issues: write
@@ -122,8 +122,7 @@ jobs:
       - name: Smoke da release com rollback automático
         run: |
           npm ci && npx playwright install --with-deps chromium
-          ./scripts/aguardar.sh "${{ vars.SITE_URL }}/releases/${SHA7}/version.json" 300
-          if ! BASE_URL="${{ vars.SITE_URL }}/releases/${SHA7}/" npx playwright test tests/e2e/smoke.spec.js; then
+          if ! ./scripts/aguardar.sh "${{ vars.SITE_URL }}/releases/${SHA7}/version.json" 900 || ! BASE_URL="${{ vars.SITE_URL }}/releases/${SHA7}/" npx playwright test tests/e2e/smoke.spec.js; then
             ./scripts/rollout.sh rollback "smoke falhou em ${SHA7}"
             exit 1
           fi
