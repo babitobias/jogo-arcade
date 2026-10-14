@@ -26,11 +26,11 @@ jobs:
         run: |
           fora=""; lenta=""
           for alvo in "${SITE_URL}/" "${SITE_URL}/hml/"; do
-            read -r code tempo < <(curl -s -L -o /dev/null --max-time 20 -w '%{http_code} %{time_total}' "$alvo" || echo "000 20")
+            read -r code tempo < <(curl -s -L -o /dev/null --max-time 20 -w '%{http_code} %{time_total}\n' "$alvo" || echo "000 20") || true
             versao=$(curl -s -L --max-time 20 "${alvo}version.json" 2>/dev/null | jq -r '.versao // empty' 2>/dev/null || true)
             echo "$(date -u +%FT%TZ),$alvo,$code,$tempo,${versao}" >> obs/status/sondas.csv
             [ "$code" = "200" ] || fora="$fora $alvo"
-            awk -v t="$tempo" 'BEGIN{exit !(t>2)}' && lenta="$lenta $alvo"
+            awk -v t="$tempo" 'BEGIN{exit !(t>2)}' && lenta="$lenta $alvo" || true
           done
           echo "fora=${fora# }" >> "$GITHUB_OUTPUT"
           echo "lenta=${lenta# }" >> "$GITHUB_OUTPUT"
