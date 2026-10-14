@@ -1,0 +1,13 @@
+{
+  "gerado_em": "2026-10-14T23:04:11.995Z",
+  "frequencia_deploy_por_semana": 0,
+  "lead_time_horas": null,
+  "lead_time_baseline_carparts_horas": 264,
+  "taxa_falha_mudanca": 0,
+  "tempo_recuperacao_horas": null,
+  "amostra": {
+    "deploys": 0,
+    "rollbacks": 0,
+    "alertas_fechados": 0
+  }
+}
