@@ -1,0 +1,58 @@
+name: monitor
+on:
+  schedule:
+    - cron: "*/15 * * * *"            # UTC; o GitHub pode atrasar execuções agendadas
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  issues: write
+
+jobs:
+  sonda:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      SITE_URL: ${{ vars.SITE_URL }}
+    steps:
+      - uses: actions/checkout@v5
+        with: { path: codigo }
+      - uses: actions/checkout@v5
+        with: { ref: observabilidade, path: obs }
+      - name: Sondar produção e homologação
+        id: sonda
+        run: |
+          fora=""; lenta=""
+          for alvo in "${SITE_URL}/" "${SITE_URL}/hml/"; do
+            read -r code tempo < <(curl -s -L -o /dev/null --max-time 20 -w '%{http_code} %{time_total}' "$alvo" || echo "000 20")
+            versao=$(curl -s -L --max-time 20 "${alvo}version.json" 2>/dev/null | jq -r '.versao // empty' 2>/dev/null || true)
+            echo "$(date -u +%FT%TZ),$alvo,$code,$tempo,${versao}" >> obs/status/sondas.csv
+            [ "$code" = "200" ] || fora="$fora $alvo"
+            awk -v t="$tempo" 'BEGIN{exit !(t>2)}' && lenta="$lenta $alvo"
+          done
+          echo "fora=${fora# }" >> "$GITHUB_OUTPUT"
+          echo "lenta=${lenta# }" >> "$GITHUB_OUTPUT"
+      - name: Métricas DORA
+        run: node codigo/scripts/dora.mjs obs/status/dora.json || true
+      - name: Salvar dados na branch observabilidade
+        run: |
+          cd obs
+          git config user.name monitor && git config user.email monitor@users.noreply.github.com
+          git add status && (git commit -qm "monitor: sonda $(date -u +%FT%TZ)" && git push -q) || true
+      - name: Alertas (abrir e fechar Issues)
+        run: |
+          alerta() {  # alerta <nome> <alvos> <detalhe>
+            local nome=$1 alvos=$2 detalhe=$3
+            local aberta
+            aberta=$(gh issue list --label alerta --state open --search "$nome in:title" --json number -q '.[0].number')
+            if [ -n "$alvos" ]; then
+              [ -n "$aberta" ] || gh issue create --label alerta \
+                --title "$nome: $alvos" --body "$detalhe em $(date -u +%FT%TZ)."
+            elif [ -n "$aberta" ]; then
+              gh issue close "$aberta" --comment "Normalizado em $(date -u +%FT%TZ)."
+            fi
+          }
+          alerta "JogoForaDoAr" "${{ steps.sonda.outputs.fora }}" "Sonda sem resposta 200"
+          alerta "LatenciaAlta" "${{ steps.sonda.outputs.lenta }}" "Tempo de resposta acima de 2 s"

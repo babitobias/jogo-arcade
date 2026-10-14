@@ -1,0 +1,12 @@
+node_modules/
+dist/
+reports/
+coverage/
+playwright-report/
+test-results/
+build.zip
+build.zip.sha256
+submissao/
+docs/GDD.pdf
+.env
+*.log

@@ -1,0 +1,137 @@
+{
+  "fases": [
+    {
+      "titulo": "Fase 1 · Lógica básica",
+      "desafios": [
+        {
+          "id": "f1d1",
+          "tema": "Condicionais",
+          "codigo": [
+            "function ehMaiorDeIdade(idade) {",
+            "  if (idade = 18) {",
+            "    return true;",
+            "  }",
+            "  return false;",
+            "}"
+          ],
+          "bug": 1,
+          "explicacao": "Um único '=' atribui valor. Para comparar, use '>=' (ou '===')."
+        },
+        {
+          "id": "f1d2",
+          "tema": "Laços",
+          "codigo": [
+            "let soma = 0;",
+            "for (let i = 1; i <= 10; i--) {",
+            "  soma += i;",
+            "}",
+            "console.log(soma);"
+          ],
+          "bug": 1,
+          "explicacao": "O contador diminui (i--) enquanto a condição exige que ele cresça: o laço nunca termina. Use i++."
+        },
+        {
+          "id": "f1d3",
+          "tema": "Listas",
+          "codigo": [
+            "const frutas = ['maçã', 'uva', 'pera'];",
+            "for (let i = 0; i <= frutas.length; i++) {",
+            "  console.log(frutas[i]);",
+            "}"
+          ],
+          "bug": 1,
+          "explicacao": "Listas começam em 0 e o último índice é length - 1. Com '<=' o laço lê uma posição que não existe (undefined). Use '<'."
+        }
+      ]
+    },
+    {
+      "titulo": "Fase 2 · Web e dados",
+      "desafios": [
+        {
+          "id": "f2d1",
+          "tema": "HTML",
+          "codigo": [
+            "<ul>",
+            "  <li>Git</li>",
+            "  <li>Docker</li>",
+            "  <p>Jenkins</p>",
+            "</ul>"
+          ],
+          "bug": 3,
+          "explicacao": "Dentro de uma lista (<ul>) só entram itens <li>. Troque o <p> por <li>."
+        },
+        {
+          "id": "f2d2",
+          "tema": "JSON",
+          "codigo": [
+            "{",
+            "  \"nome\": \"Ana\",",
+            "  \"curso\": \"ADS\",",
+            "  \"semestre\": 2,",
+            "}"
+          ],
+          "bug": 3,
+          "explicacao": "JSON não aceita vírgula depois do último item. Remova a vírgula depois do 2."
+        },
+        {
+          "id": "f2d3",
+          "tema": "JavaScript",
+          "codigo": [
+            "const total = 5;",
+            "total = total + 1;",
+            "console.log(total);"
+          ],
+          "bug": 1,
+          "explicacao": "Uma constante (const) não pode ser reatribuída. Use let quando o valor precisa mudar."
+        }
+      ]
+    },
+    {
+      "titulo": "Fase 3 · Mundo DevOps",
+      "desafios": [
+        {
+          "id": "f3d1",
+          "tema": "Git",
+          "codigo": [
+            "git checkout -b feature/login",
+            "git add .",
+            "git commit -m \"feat: tela de login\"",
+            "git push origin main"
+          ],
+          "bug": 3,
+          "explicacao": "O trabalho está na branch feature/login, mas o push vai para a main, pulando o pull request e a revisão."
+        },
+        {
+          "id": "f3d2",
+          "tema": "GitHub Actions",
+          "codigo": [
+            "on:",
+            "  push:",
+            "    branches: [main]",
+            "jobs:",
+            "  ci:",
+            "    runs-on: ubuntu-latest",
+            "    steps:",
+            "      - run: npm test",
+            "      - uses: actions/checkout@v5"
+          ],
+          "bug": 7,
+          "explicacao": "Sem o checkout antes, o runner não tem o código e o npm test falha. O checkout deve ser o primeiro passo."
+        },
+        {
+          "id": "f3d3",
+          "tema": "Segredos",
+          "codigo": [
+            "const config = {",
+            "  api: 'https://api.exemplo.dev',",
+            "  token: 'ghp_SENHA_REAL_AQUI',",
+            "  tempo: 3000",
+            "};"
+          ],
+          "bug": 2,
+          "explicacao": "Credencial escrita no código vaza pelo Git. Use secrets/variáveis de ambiente e revogue o token exposto."
+        }
+      ]
+    }
+  ]
+}

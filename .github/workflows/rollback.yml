@@ -1,0 +1,23 @@
+name: rollback
+on:
+  workflow_dispatch:
+    inputs:
+      motivo:
+        description: "Por que estamos revertendo?"
+        required: true
+        default: "defeito em produção"
+
+permissions:
+  contents: write
+
+jobs:
+  rollback:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+      - name: Rollback (troca o ponteiro no rollout.json)
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          MOTIVO: ${{ inputs.motivo }}
+        run: ./scripts/rollout.sh rollback "$MOTIVO"

@@ -1,0 +1,28 @@
+{
+  "name": "jogo-arcade",
+  "version": "0.1.0",
+  "description": "Caça-Bug: jogo educativo de lógica e programação entregue por esteira CI/CD",
+  "type": "module",
+  "license": "MIT",
+  "private": true,
+  "engines": { "node": ">=22" },
+  "scripts": {
+    "lint": "eslint .",
+    "test": "vitest run",
+    "test:ci": "vitest run --coverage --reporter=default --reporter=junit --outputFile.junit=reports/junit.xml",
+    "test:e2e": "playwright test",
+    "build": "node scripts/build.mjs",
+    "gdd:pdf": "node scripts/gdd-pdf.mjs",
+    "serve": "node scripts/serve.mjs dist"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.17.0",
+    "@playwright/test": "^1.49.0",
+    "@vitest/coverage-v8": "^2.1.8",
+    "esbuild": "^0.24.0",
+    "eslint": "^9.17.0",
+    "globals": "^15.14.0",
+    "marked": "^15.0.4",
+    "vitest": "^2.1.8"
+  }
+}

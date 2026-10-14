@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Status · Caça-Bug</title>
+  <style>
+    body{font-family:system-ui,sans-serif;max-width:760px;margin:24px auto;padding:0 16px;color:#111}
+    .grade{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
+    .card{border:1px solid #ccc;border-radius:10px;padding:12px}.card b{display:block;font-size:1.5rem}
+    .ok{color:#0a7d3b}.ruim{color:#c0182d} table{border-collapse:collapse;width:100%;font-size:.9rem}
+    td,th{border-bottom:1px solid #ddd;padding:4px 6px;text-align:left}
+  </style>
+</head>
+<body>
+<h1>Status do jogo</h1>
+<div class="grade" id="cartoes">Carregando…</div>
+<h2>Métricas DORA</h2>
+<div class="grade" id="dora">Sem dados ainda.</div>
+<h2>Últimas sondas</h2>
+<table id="tabela"><thead><tr><th>Quando (UTC)</th><th>Alvo</th><th>HTTP</th><th>Tempo (s)</th><th>Versão</th></tr></thead><tbody></tbody></table>
+<script>
+const dono = location.hostname.split(".")[0];
+const repo = location.pathname.split("/")[1];
+const base = `https://raw.githubusercontent.com/${dono}/${repo}/observabilidade/status/`;
+const card = (t, v, cls = "") => `<div class="card">${t}<b class="${cls}">${v}</b></div>`;
+const num = (v, un = "") => (v === null || v === undefined ? "–" : v + un);
+
+async function carregar() {
+  const [csv, dora, rollout] = await Promise.all([
+    fetch(base + "sondas.csv", { cache: "no-store" }).then(r => r.text()).catch(() => ""),
+    fetch(base + "dora.json", { cache: "no-store" }).then(r => r.json()).catch(() => null),
+    fetch("../rollout.json", { cache: "no-store" }).then(r => r.json()).catch(() => null),
+  ]);
+  const linhas = csv.trim().split("\n").slice(1).filter(Boolean).map(l => l.split(","));
+  const prod = linhas.filter(l => l[1].endsWith("/") && !l[1].endsWith("/hml/")).slice(-96);
+  const disp = prod.length ? (100 * prod.filter(l => l[2] === "200").length / prod.length).toFixed(1) : null;
+  const lat = prod.length ? (prod.reduce((s, l) => s + Number(l[3]), 0) / prod.length).toFixed(2) : null;
+  document.getElementById("cartoes").innerHTML =
+    card("Disponibilidade (24 h)", num(disp, "%"), disp >= 99 ? "ok" : "ruim") +
+    card("Latência média", num(lat, " s"), lat !== null && lat <= 2 ? "ok" : "ruim") +
+    card("Versão estável", rollout ? num(rollout.estavel) : "–") +
+    card("Canário", rollout && rollout.canario ? `${rollout.canario} (${rollout.percentual}%)` : "nenhum");
+  if (dora) {
+    document.getElementById("dora").innerHTML =
+      card("Frequência de deploy", num(dora.frequencia_deploy_por_semana, "/sem")) +
+      card("Lead time", num(dora.lead_time_horas, " h")) +
+      card("Taxa de falha", dora.taxa_falha_mudanca === null ? "–" : (dora.taxa_falha_mudanca * 100).toFixed(0) + "%") +
+      card("Tempo de recuperação", num(dora.tempo_recuperacao_horas, " h")) +
+      card("Baseline Carparts (lead time)", num(dora.lead_time_baseline_carparts_horas, " h"));
+  }
+  document.querySelector("#tabela tbody").innerHTML = linhas.slice(-15).reverse()
+    .map(l => `<tr>${l.map(c => `<td>${c.replace(/</g, "&lt;")}</td>`).join("")}</tr>`).join("");
+}
+carregar();
+</script>
+</body>
+</html>
