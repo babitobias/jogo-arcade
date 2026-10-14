@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Caça-Bug</title>
+</head>
+<body>
+<p>Carregando o jogo…</p>
+<script>
+fetch("rollout.json", { cache: "no-store" })
+  .then(r => r.json())
+  .then(r => {
+    let v = null;
+    try { v = localStorage.getItem("versao"); } catch (e) {}
+    const validas = [r.estavel, r.canario].filter(Boolean);
+    if (!validas.includes(v)) {                       // sessão nova ou versão retirada
+      v = (r.canario && Math.random() * 100 < r.percentual) ? r.canario : r.estavel;
+      try { if (v) localStorage.setItem("versao", v); } catch (e) {}
+    }
+    if (!v) throw new Error("sem versão estável");
+    location.replace("releases/" + v + "/");
+  })
+  .catch(() => { document.body.textContent = "Jogo indisponível no momento."; });
+</script>
+</body>
+</html>
